@@ -1,0 +1,13 @@
+# Quartus
+output_files/
+db/
+incremental_db/
+*.rpt
+*.jou
+*.qws
+*.qpf~
+*.qsf~
+*.swo
+*.bak
+*.qsf
+*.qpf

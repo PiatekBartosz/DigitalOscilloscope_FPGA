@@ -1,0 +1,4 @@
+project_open digital_oscilloscope
+load_package flow
+execute_flow -compile
+project_close
