@@ -4,8 +4,12 @@ QSF = quartus/$(PROJECT).qsf
 
 QUARTUS_SH = quartus_sh
 QUARTUS_PGM = quartus_pgm
+QUARTUS_CPF = quartus_cpf
 
-.PHONY: all clean build map fit asm sta program run
+FPGA_DEVICE = EP4CE22
+CONFIG_DEVICE = EPCS64
+
+.PHONY: all clean build map fit asm sta program jic run
 
 all: build
 
@@ -27,7 +31,15 @@ sta:
 program:
 	$(QUARTUS_PGM) -m jtag -o "p;output_files/$(PROJECT).sof"
 
+# TODO: for now only works in gui
+jic:
+	$(QUARTUS_CPF) -c -f digital_oscilloscope.cof p;output_files/$(PROJECT).jic
+
+flash: jic
+	$(QUARTUS_PGM) -m jtag -o "p;output_files/$(PROJECT).jic"
+
 clean:
 	rm -rf output_files db incremental_db
 
 run: build program
+

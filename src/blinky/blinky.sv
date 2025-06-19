@@ -3,10 +3,10 @@ module blinky (
     output logic led
 );
 
-    logic [23:0] counter;
+    logic [23:0] counter = 0;
 
     always_ff @(posedge clk) begin
-        if (counter == 50_000_000 - 1) begin
+        if (counter == 24'd49_999_999) begin
             counter <= 0;
             led <= ~led;
         end else begin
