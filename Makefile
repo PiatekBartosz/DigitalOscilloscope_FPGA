@@ -1,45 +1,29 @@
 PROJECT = digital_oscilloscope
-QPF = quartus/$(PROJECT).qpf
-QSF = quartus/$(PROJECT).qsf
-
 QUARTUS_SH = quartus_sh
 QUARTUS_PGM = quartus_pgm
 QUARTUS_CPF = quartus_cpf
 
-FPGA_DEVICE = EP4CE22
-CONFIG_DEVICE = EPCS64
+.PHONY: all clean build program jic flash
 
-.PHONY: all clean build map fit asm sta program jic run
-
+# Default target
 all: build
 
+# Full compile (analysis + synthesis + fit + asm)
 build:
-	$(QUARTUS_SH) -t build.tcl
+	$(QUARTUS_SH) --flow compile $(PROJECT)
 
-map:
-	quartus_map $(PROJECT)
+# Program FPGA via JTAG (SOF)
+program: build
+# 	$(QUARTUS_PGM) -m jtag -o "p;output_files/$(PROJECT).sof"
+	$(QUARTUS_PGM) -m jtag -o "p;$(PROJECT).sof"
 
-fit:
-	quartus_fit $(PROJECT)
-
-asm:
-	quartus_asm $(PROJECT)
-
-sta:
-	quartus_sta $(PROJECT)
-
-program:
-	$(QUARTUS_PGM) -m jtag -o "p;output_files/$(PROJECT).sof"
-
-# TODO: for now only works in gui
+# Generate JIC file
 jic:
-	$(QUARTUS_CPF) -c -f digital_oscilloscope.cof p;output_files/$(PROJECT).jic
+	$(QUARTUS_CPF) -c digital_oscilloscope.cof
 
+# Program flash (JIC)
 flash: jic
 	$(QUARTUS_PGM) -m jtag -o "p;output_files/$(PROJECT).jic"
 
 clean:
 	rm -rf output_files db incremental_db
-
-run: build program
-
