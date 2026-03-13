@@ -11,18 +11,18 @@ logic pll_locked;
 // Temporary internal reset (if needed)
 // logic i_reset_n;
 
-blinky u_blinky (
-    .i_clk(i_clk_ext),
-    .o_led(o_led)
-);
+// blinky u_blinky (
+//     .i_clk(i_clk_ext),
+//     .o_led(o_clk_adc)
+// );
 
-adc_clk u_adc_clk (
-    .areset(~i_areset_n),
-    .inclk0(i_clk_ext),
-    .c0(o_clk_adc),
-    .c1(),
-    .locked(pll_locked)
-);
+assign o_clk_adc = i_clk_ext;
+
+// adc_clk u_adc_clk (
+// 	.areset(0),
+// 	.inclk0(i_clk_devkit),
+// 	.c0(o_clk_adc),
+// 	.locked());
 
 endmodule
 
