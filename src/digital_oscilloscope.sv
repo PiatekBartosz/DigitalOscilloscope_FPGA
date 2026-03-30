@@ -2,6 +2,9 @@ module digital_oscilloscope (
     input  logic i_clk_ext,
     output logic o_clk_adc,
 
+    input logic [13:0] i_adc_a,
+    output logic o_adc_output_enable_a,
+
     // Unused
     input  logic i_areset_n,
     input  logic i_clk_devkit,
