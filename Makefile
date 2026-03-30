@@ -7,7 +7,9 @@ QUARTUS_CPF = quartus_cpf
 SRC = \
     src/digital_oscilloscope.sv \
     src/blinky/blinky.sv \
-    src/fpga_control/fpga_control.sv
+    src/fpga_control/fpga_control.sv \
+    src/mcu_spi/mcu_spi.sv \
+    src/adc_reader/adc_reader.sv
 
 QIP = \
     src/clk/adc_clk.qip \
