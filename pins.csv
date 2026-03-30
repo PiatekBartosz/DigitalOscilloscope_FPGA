@@ -1,0 +1,5 @@
+To,Location,I/O Standard
+i_clk_devkit,PIN_R8,2.5 V
+i_clk_ext,PIN_T9,2.5 V
+_clk_adc,PIN_E11,2.5 V
+o_led,PIN_A15,2.5 V
