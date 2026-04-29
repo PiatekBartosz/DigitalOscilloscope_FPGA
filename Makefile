@@ -7,9 +7,13 @@ QUARTUS_CPF = quartus_cpf
 SRC = \
     src/digital_oscilloscope.sv \
     src/blinky/blinky.sv \
-    src/fpga_control/fpga_control.sv \
-    src/mcu_spi/mcu_spi.sv \
-    src/adc_reader/adc_reader.sv
+    src/ltc2299/ltc2299.sv \
+    src/mock_gen/mock_gen.sv \
+    src/mcu_parallel/mcu_parallel_if.sv \
+    src/mcu_parallel/mcu_parallel.sv
+
+FORMAT_TOOL = verible-verilog-format
+FORMAT_ARGS = --flagfile=.verilog_format --inplace
 
 QIP = \
     src/clk/adc_clk.qip \
@@ -42,6 +46,10 @@ erase_flash:
 	$(QUARTUS_PGM) -m jtag -o "e;$(PROJECT).jic"
 	@echo "Flash Erase Done!"
 
+format:
+	$(FORMAT_TOOL) $(FORMAT_ARGS) $(SRC)
+	@echo "\nFormat Done!"
+
 clean:
 	rm -rf db incremental_db output_files greybox_tmp simulation .qsys_edit
 	rm -f *.rpt *.summary *.smsg *.done *.pin *.jdi *.sld *.map
@@ -51,3 +59,4 @@ clean:
 	rm -f qmegawiz_errors_log.txt
 	rm -f src/*.bak src/**/*.bak src/**/**/*.bak
 	@echo "Clean Done!"
+

@@ -1,7 +1,7 @@
 module blinky #(
     parameter int INPUT_CLOCK_FREQUENCY_HZ = 80_000_000,
     parameter int PERIOD_S    = 2
-)(
+) (
     input  logic i_clk,
     output logic o_led = 1'b0
 );

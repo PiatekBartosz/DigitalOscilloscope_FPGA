@@ -1,0 +1,8 @@
+--indentation_spaces=4
+--column_limit=100
+--assignment_statement_alignment=align
+--case_items_alignment=align
+--port_declarations_alignment=align
+--named_port_alignment=align
+--module_net_variable_alignment=align
+--wrap_end_else_clauses=false
