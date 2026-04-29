@@ -1,17 +1,17 @@
 module fpga_control #(
     parameter ADDR_SIZE = 4,
-    parameter REG_SIZE  = 32,
+    parameter REG_SIZE = 32,
     parameter DEFAULT_BATCH_SIZE = 1024
-)(
-    input  logic i_clk,
-    input  logic i_areset_n,
+) (
+    input logic i_clk,
+    input logic i_areset_n,
 
     // Bus interface
-    input  logic i_write_en,
-    input  logic i_read_en,
+    input  logic                 i_write_en,
+    input  logic                 i_read_en,
     input  logic [ADDR_SIZE-1:0] i_addr,
-    input  logic [REG_SIZE-1:0] i_write_data,
-    output logic [REG_SIZE-1:0] o_read_data,
+    input  logic [ REG_SIZE-1:0] i_write_data,
+    output logic [ REG_SIZE-1:0] o_read_data,
 
     // Control
     output logic o_capture_enable,
@@ -19,9 +19,9 @@ module fpga_control #(
     output logic o_reset_fifo,
 
     // Status
-    input  logic i_fifo_overflow,
-    input  logic i_batch_ready,
-    input  logic i_sdram_busy
+    input logic i_fifo_overflow,
+    input logic i_batch_ready,
+    input logic i_sdram_busy
 );
 
     typedef enum logic [ADDR_SIZE-1:0] {
@@ -49,25 +49,25 @@ module fpga_control #(
 
     always_ff @(posedge i_clk or negedge i_areset_n) begin
         if (!i_areset_n) begin
-            r_status  <= '0;
-            r_control <= '0;
+            r_status         <= '0;
+            r_control        <= '0;
             o_capture_enable <= 1'b0;
             o_mock_enable    <= 1'b0;
             o_reset_fifo     <= 1'b0;
         end else begin
-            r_status[1'd0] <= i_fifo_overflow;
-            r_status[1'd1]   <= i_batch_ready;
-            r_status[1'd2]    <= i_sdram_busy;
+            r_status[1'd0]            <= i_fifo_overflow;
+            r_status[1'd1]            <= i_batch_ready;
+            r_status[1'd2]            <= i_sdram_busy;
             r_status[REG_SIZE-1:1'd3] <= '0;
 
-            o_capture_enable <= r_control[1'd0];
-            o_mock_enable    <= r_control[1'd1];
-            o_reset_fifo     <= r_control[1'd2];
+            o_capture_enable          <= r_control[1'd0];
+            o_mock_enable             <= r_control[1'd1];
+            o_reset_fifo              <= r_control[1'd2];
 
             case (i_addr)
                 ADDR_CTRL:   r_control <= i_write_data;
-                ADDR_STATUS: r_status  <= i_write_data;
-                default: ;
+                ADDR_STATUS: r_status <= i_write_data;
+                default:     ;
             endcase
         end
     end

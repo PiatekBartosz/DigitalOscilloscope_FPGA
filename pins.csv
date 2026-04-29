@@ -1,0 +1,68 @@
+To,Location,I/O Standard
+i_clk_devkit,PIN_R8,2.5 V
+i_clk_ext,PIN_T9,2.5 V
+o_clk_adc,PIN_E11,2.5 V
+o_led,PIN_A15,2.5 V
+
+i_adc_a[0],PIN_R9,3.3-V LVTTL
+i_adc_a[1],PIN_T14,3.3-V LVTTL
+i_adc_a[2],PIN_R13,3.3-V LVTTL
+i_adc_a[3],PIN_R12,3.3-V LVTTL
+i_adc_a[4],PIN_T10,3.3-V LVTTL
+i_adc_a[5],PIN_P11,3.3-V LVTTL
+i_adc_a[6],PIN_N12,3.3-V LVTTL
+i_adc_a[7],PIN_N9,3.3-V LVTTL
+i_adc_a[8],PIN_L16,3.3-V LVTTL
+i_adc_a[9],PIN_R16,3.3-V LVTTL
+i_adc_a[10],PIN_P15,3.3-V LVTTL
+i_adc_a[11],PIN_R14,3.3-V LVTTL
+i_adc_a[12],PIN_N15,3.3-V LVTTL
+i_adc_a[13],PIN_L14,3.3-V LVTTL
+
+i_adc_b[0],PIN_A2,3.3-V LVTTL
+i_adc_b[1],PIN_B3,3.3-V LVTTL
+i_adc_b[2],PIN_A4,3.3-V LVTTL
+i_adc_b[3],PIN_A5,3.3-V LVTTL
+i_adc_b[4],PIN_B6,3.3-V LVTTL
+i_adc_b[5],PIN_B7,3.3-V LVTTL
+i_adc_b[6],PIN_A7,3.3-V LVTTL
+i_adc_b[7],PIN_C8,3.3-V LVTTL
+i_adc_b[8],PIN_E8,3.3-V LVTTL
+i_adc_b[9],PIN_F9,3.3-V LVTTL
+i_adc_b[10],PIN_C9,3.3-V LVTTL
+i_adc_b[11],PIN_C11,3.3-V LVTTL
+i_adc_b[12],PIN_A12,3.3-V LVTTL
+i_adc_b[13],PIN_D12,3.3-V LVTTL
+
+i_adc_ready,PIN_M10,3.3-V LVTTL
+i_adc_overflow,PIN_J16,3.3-V LVTTL
+o_adc_output_enable_a,PIN_J13,3.3-V LVTTL
+
+i_mcu_ctrl[0],PIN_A3,3.3-V LVTTL
+i_mcu_ctrl[1],PIN_B4,3.3-V LVTTL
+i_mcu_ctrl[2],PIN_B5,3.3-V LVTTL
+i_mcu_ctrl[3],PIN_A6,3.3-V LVTTL
+i_mcu_ctrl[4],PIN_C6,3.3-V LVTTL
+i_mcu_ctrl[5],PIN_E6,3.3-V LVTTL
+i_mcu_ctrl[6],PIN_D8,3.3-V LVTTL
+i_mcu_ctrl[7],PIN_F8,3.3-V LVTTL
+
+o_mcu_data[0],PIN_F13,3.3-V LVTTL
+o_mcu_data[1],PIN_T15,3.3-V LVTTL
+o_mcu_data[2],PIN_T13,3.3-V LVTTL
+o_mcu_data[3],PIN_T12,3.3-V LVTTL
+o_mcu_data[4],PIN_T11,3.3-V LVTTL
+o_mcu_data[5],PIN_R11,3.3-V LVTTL
+o_mcu_data[6],PIN_R10,3.3-V LVTTL
+o_mcu_data[7],PIN_P9,3.3-V LVTTL
+o_mcu_data[8],PIN_N11,3.3-V LVTTL
+o_mcu_data[9],PIN_K16,3.3-V LVTTL
+o_mcu_data[10],PIN_L15,3.3-V LVTTL
+o_mcu_data[11],PIN_P16,3.3-V LVTTL
+o_mcu_data[12],PIN_N16,3.3-V LVTTL
+o_mcu_data[13],PIN_P14,3.3-V LVTTL
+
+i_mcu_rw,PIN_E9,3.3-V LVTTL
+i_mcu_req,PIN_D9,3.3-V LVTTL
+o_mcu_ack,PIN_E10,2.5 V
+o_mcu_irq,PIN_B11,2.5 V
