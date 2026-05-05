@@ -56,7 +56,7 @@ o_mcu_data[5],PIN_R11,3.3-V LVTTL
 o_mcu_data[6],PIN_R10,3.3-V LVTTL
 o_mcu_data[7],PIN_P9,3.3-V LVTTL
 o_mcu_data[8],PIN_N11,3.3-V LVTTL
-o_mcu_data[9],PIN_K16,3.3-V LVTTL
+o_mcu_data[9],PIN_L13,3.3-V LVTTL
 o_mcu_data[10],PIN_L15,3.3-V LVTTL
 o_mcu_data[11],PIN_P16,3.3-V LVTTL
 o_mcu_data[12],PIN_N16,3.3-V LVTTL
