@@ -40,8 +40,22 @@ module mcu_parallel (
     logic [ 7:0] r_frequency;
     logic        r_stream_enable;
 
-    logic        r_req_prev;
-    wire         w_req_rising = mcu.req & ~r_req_prev;
+    // 2-FF synchronizer: prevents metastability on the async req line and
+    // gives ctrl/rw an extra 2 cycles (~40 ns at 50 MHz) to settle before
+    // the FPGA latches them, eliminating spurious opcode misreads.
+    logic r_req_sync0, r_req_sync1;
+    always_ff @(posedge i_clk or negedge i_rst_n) begin
+        if (!i_rst_n) begin
+            r_req_sync0 <= 1'b0;
+            r_req_sync1 <= 1'b0;
+        end else begin
+            r_req_sync0 <= mcu.req;
+            r_req_sync1 <= r_req_sync0;
+        end
+    end
+
+    logic r_req_prev;
+    wire  w_req_rising = r_req_sync1 & ~r_req_prev;
 
     logic [ 7:0] r_ctrl_latch;
     logic        r_rw_latch;
@@ -72,7 +86,7 @@ module mcu_parallel (
             r_frequency      <= 8'd0;
             r_stream_enable  <= 1'b0;
         end else begin
-            r_req_prev <= mcu.req;
+            r_req_prev <= r_req_sync1;
 
             if (w_req_rising) begin
                 r_ctrl_latch <= mcu.ctrl;
@@ -116,7 +130,7 @@ module mcu_parallel (
                     endcase
                 end
 
-            end else if (!mcu.req) begin
+            end else if (!r_req_sync1) begin
                 mcu.ack <= 1'b0;
             end
         end
