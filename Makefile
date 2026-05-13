@@ -10,7 +10,9 @@ SRC = \
     src/ltc2299/ltc2299.sv \
     src/mock_gen/mock_gen.sv \
     src/mcu_parallel/mcu_parallel_if.sv \
-    src/mcu_parallel/mcu_parallel.sv
+    src/mcu_parallel/mcu_parallel.sv \
+    src/memory/memory.v \
+    src/memory/sample_buffer.sv
 
 FORMAT_TOOL = verible-verilog-format
 FORMAT_ARGS = --flagfile=.verilog_format --inplace

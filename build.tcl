@@ -34,7 +34,11 @@ if {[file exists $csv_file]} {
 
 foreach src [split $srcs] {
     if {$src != ""} {
-        set_global_assignment -name SYSTEMVERILOG_FILE $src
+        if {[string match "*.v" $src]} {
+            set_global_assignment -name VERILOG_FILE $src
+        } else {
+            set_global_assignment -name SYSTEMVERILOG_FILE $src
+        }
     }
 }
 

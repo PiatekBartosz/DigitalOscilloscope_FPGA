@@ -1,8 +1,9 @@
 To,Location,I/O Standard
-i_clk_devkit,PIN_R8,2.5 V
-i_clk_ext,PIN_T9,2.5 V
-o_clk_adc,PIN_E11,2.5 V
-o_led,PIN_A15,2.5 V
+i_clk_devkit,PIN_R8,3.3-V LVTTL
+i_clk_ext,PIN_T9,3.3-V LVTTL
+o_clk_adc,PIN_E11,3.3-V LVTTL
+o_led,PIN_A15,3.3-V LVTTL
+i_areset_n,PIN_N14,3.3-V LVTTL
 
 i_adc_a[0],PIN_R9,3.3-V LVTTL
 i_adc_a[1],PIN_T14,3.3-V LVTTL
@@ -56,7 +57,7 @@ o_mcu_data[5],PIN_R11,3.3-V LVTTL
 o_mcu_data[6],PIN_R10,3.3-V LVTTL
 o_mcu_data[7],PIN_P9,3.3-V LVTTL
 o_mcu_data[8],PIN_N11,3.3-V LVTTL
-o_mcu_data[9],PIN_K16,3.3-V LVTTL
+o_mcu_data[9],PIN_L13,3.3-V LVTTL
 o_mcu_data[10],PIN_L15,3.3-V LVTTL
 o_mcu_data[11],PIN_P16,3.3-V LVTTL
 o_mcu_data[12],PIN_N16,3.3-V LVTTL
@@ -64,5 +65,4 @@ o_mcu_data[13],PIN_P14,3.3-V LVTTL
 
 i_mcu_rw,PIN_E9,3.3-V LVTTL
 i_mcu_req,PIN_D9,3.3-V LVTTL
-o_mcu_ack,PIN_E10,2.5 V
-o_mcu_irq,PIN_B11,2.5 V
+o_mcu_ack,PIN_E10,3.3-V LVTTL
