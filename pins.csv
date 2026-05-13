@@ -66,4 +66,3 @@ o_mcu_data[13],PIN_P14,3.3-V LVTTL
 i_mcu_rw,PIN_E9,3.3-V LVTTL
 i_mcu_req,PIN_D9,3.3-V LVTTL
 o_mcu_ack,PIN_E10,3.3-V LVTTL
-o_mcu_irq,PIN_B11,3.3-V LVTTL

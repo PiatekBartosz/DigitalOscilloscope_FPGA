@@ -25,7 +25,6 @@ module digital_oscilloscope (
     input  logic        i_mcu_req,
     output logic [13:0] o_mcu_data,  // result driven to MCU on reads
     output logic        o_mcu_ack,
-    output logic        o_mcu_irq,
 
     output logic o_led
 );
@@ -39,11 +38,14 @@ module digital_oscilloscope (
     logic        s_ch_b_valid;
     logic        s_capture_enable;
     logic        s_mock_enable;
+    logic        s_reset_fifo;
 
-    // TODO: connect when FIFO/SDRAM fabric is added
-    logic        s_fifo_overflow = 1'b0;
-    logic        s_batch_ready = 1'b0;
-    logic        s_sdram_busy = 1'b0;
+    // sample_buffer status → mcu_parallel STATUS register
+    logic s_fifo_overflow;
+    logic s_batch_ready;
+    logic s_sdram_busy;
+
+    assign s_sdram_busy = 1'b0;  // no external SDRAM in this design
 
     logic [13:0] s_mock_ch1;
     logic [13:0] s_mock_ch2;
@@ -64,17 +66,22 @@ module digital_oscilloscope (
         .o_valid   (s_mock_valid)
     );
 
-    logic [13:0] s_plink_ch1;
-    logic [13:0] s_plink_ch2;
-    logic        s_plink_valid;
+    // Mux: live ADC vs synthetic mock data
+    logic [13:0] s_adc_ch1, s_adc_ch2;
+    logic        s_adc_valid;
 
-    assign s_plink_ch1   = s_mock_enable ? s_mock_ch1 : s_ch_a_data;
-    assign s_plink_ch2   = s_mock_enable ? s_mock_ch2 : s_ch_b_data;
-    assign s_plink_valid = s_mock_enable ? s_mock_valid : s_ch_a_valid;
+    assign s_adc_ch1   = s_mock_enable ? s_mock_ch1 : s_ch_a_data;
+    assign s_adc_ch2   = s_mock_enable ? s_mock_ch2 : s_ch_b_data;
+    assign s_adc_valid = s_mock_enable ? s_mock_valid : s_ch_a_valid;
+
+    // sample_buffer outputs (pre-fetched samples fed to mcu_parallel)
+    logic [13:0] s_buf_ch1, s_buf_ch2;
+    logic        s_buf_valid;
+    logic        s_ch2_read_strobe;
 
     adc_clk adc_clk_inst (
         .areset(1'b0),
-        .inclk0(i_clk_devkit),
+        .inclk0(i_clk_ext),
         .c0    (pll_clk),
         .locked(pll_locked)
     );
@@ -88,24 +95,39 @@ module digital_oscilloscope (
     assign mcu_bus.req  = i_mcu_req;
     assign o_mcu_data   = mcu_bus.data;
     assign o_mcu_ack    = mcu_bus.ack;
-    assign o_mcu_irq    = mcu_bus.irq;
 
     mcu_parallel parallel_inst (
-        .i_clk           (pll_clk),
-        .i_rst_n         (s_rst_n),
-        .i_ch1_data      (s_plink_ch1),
-        .i_ch2_data      (s_plink_ch2),
-        .i_ch1_valid     (s_plink_valid),
-        .i_ch2_valid     (s_plink_valid),
-        .i_fifo_overflow (s_fifo_overflow),
-        .i_batch_ready   (s_batch_ready),
-        .i_sdram_busy    (s_sdram_busy),
-        .o_capture_enable(s_capture_enable),
-        .o_mock_enable   (s_mock_enable),
-        .o_reset_fifo    (),
-        .o_sample_count  (),
-        .o_frequency     (),
-        .mcu             (mcu_bus.device)
+        .i_clk             (pll_clk),
+        .i_rst_n           (s_rst_n),
+        .i_ch1_data        (s_buf_ch1),
+        .i_ch2_data        (s_buf_ch2),
+        .i_ch1_valid       (s_buf_valid),
+        .i_ch2_valid       (s_buf_valid),
+        .i_fifo_overflow   (s_fifo_overflow),
+        .i_batch_ready     (s_batch_ready),
+        .i_sdram_busy      (s_sdram_busy),
+        .o_capture_enable  (s_capture_enable),
+        .o_mock_enable     (s_mock_enable),
+        .o_reset_fifo      (s_reset_fifo),
+        .o_ch2_read_strobe (s_ch2_read_strobe),
+        .mcu               (mcu_bus.device)
+    );
+
+    // sample_buffer: fills on ADC data, stalls until MCU has drained it
+    sample_buffer buf_inst (
+        .i_clk            (pll_clk),
+        .i_rst_n          (s_rst_n),
+        .i_ch1_data       (s_adc_ch1),
+        .i_ch2_data       (s_adc_ch2),
+        .i_valid          (s_adc_valid),
+        .i_capture_enable (s_capture_enable),
+        .i_reset          (s_reset_fifo),
+        .o_ch1_data       (s_buf_ch1),
+        .o_ch2_data       (s_buf_ch2),
+        .o_valid          (s_buf_valid),
+        .i_read_advance   (s_ch2_read_strobe),
+        .o_batch_ready    (s_batch_ready),
+        .o_overflow       (s_fifo_overflow)
     );
 
     ltc2299 #(
