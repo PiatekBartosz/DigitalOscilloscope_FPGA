@@ -1,75 +1,66 @@
 module digital_oscilloscope (
     input logic i_clk_ext,
-    input logic i_clk_devkit, // Unused right now
+    input logic i_clk_devkit,
     input logic i_areset_n,
 
-    // LTC2299 Channel A
     output logic        o_adc_oe_a_n,
     output logic        o_adc_shdn_a,
     input  logic [13:0] i_adc_a,
     input  logic        i_adc_of_a,
 
-    // LTC2299 Channel B
     output logic        o_adc_oe_b_n,
     output logic        o_adc_shdn_b,
     input  logic [13:0] i_adc_b,
     input  logic        i_adc_of_b,
 
-    // LTC2299 shared
     output logic o_adc_mux,
     output logic o_clk_adc,
 
-    // Parallel command interface to MCU
-    input  logic [ 7:0] i_mcu_ctrl,  // [2:0]=OP, [7:3]=PAYLOAD
-    input  logic        i_mcu_rw,    // 0=write, 1=read
-    input  logic        i_mcu_req,
-    output logic [13:0] o_mcu_data,  // result driven to MCU on reads
-    output logic        o_mcu_ack,
+    // Bus_2_STM parallel interface – 14-bit bidirectional data bus
+    inout  wire  [13:0] io_mcu_data,      // PE_dataBus: 14-bit bidirectional
+    input  logic [ 2:0] i_mcu_addr,       // CFG_ADDR[2:0]
+    input  logic        i_mcu_rw,         // C7_Write_To_FPGA: 1=write 0=read
+    input  logic        i_mcu_req,        // C3_Trigger_Clock_INP: write strobe
+    input  logic        i_mcu_inc,        // Increment: advance sample pointer
+    output logic        o_mcu_req_echo,   // C3_Trigger_Clock_OUT
+    output logic        o_mcu_busy,       // Status_FPGA_Busy
 
     output logic o_led
 );
 
     assign o_clk_adc = i_clk_ext;
 
-    logic [13:0] w_ch_a_data;
-    logic [13:0] w_ch_b_data;
-    logic        w_ch_a_valid;
-    logic        w_ch_b_valid;
-    logic        w_capture_enable;
-    logic        w_mock_enable;
-    logic        w_reset_fifo;
-
-    logic        w_fifo_overflow;
-    logic        w_batch_ready;
-
-    logic [13:0] w_mock_ch1;
-    logic [13:0] w_mock_ch2;
+    logic [13:0] w_ch_a_data, w_ch_b_data;
+    logic        w_ch_a_valid, w_ch_b_valid;
+    logic        w_capture_enable, w_mock_enable, w_reset_fifo;
+    logic        w_fifo_overflow, w_batch_ready;
+    logic [13:0] w_mock_ch1, w_mock_ch2;
     logic        w_mock_valid;
-
-    // Mux: live ADC vs synthetic mock data
     logic [13:0] w_adc_ch1, w_adc_ch2;
     logic        w_adc_valid;
+    logic [13:0] w_buf_ch1, w_buf_ch2;
+    logic        w_buf_valid;
+    logic        w_read_advance;
+    logic [12:0] w_sample_last_addr;
+    logic        w_sample_written;
 
     assign w_adc_ch1   = w_mock_enable ? w_mock_ch1 : w_ch_a_data;
     assign w_adc_ch2   = w_mock_enable ? w_mock_ch2 : w_ch_b_data;
     assign w_adc_valid = w_mock_enable ? w_mock_valid : w_ch_a_valid;
 
-    // sample_buffer outputs (pre-fetched samples fed to mcu_parallel)
-    logic [13:0] w_buf_ch1, w_buf_ch2;
-    logic        w_buf_valid;
-    logic        w_ch2_read_strobe;
-    logic [12:0] w_sample_last_addr;
-    // Pulsed when a sample pair is committed to RAM; fed back to mock_gen so
-    // its counter only ticks on accepted writes (no drift during MCU drain).
-    logic        w_sample_written;
-
     mcu_parallel_if mcu_bus ();
 
-    assign mcu_bus.ctrl = i_mcu_ctrl;
+    // 14-bit bidirectional bus: FPGA tristates when MCU writes (rw=1),
+    // drives the bus when MCU reads (rw=0, data_oe=1)
+    assign io_mcu_data     = mcu_bus.data_oe ? mcu_bus.data_out : 14'bz;
+    assign mcu_bus.data_in = io_mcu_data;
+
+    assign mcu_bus.addr = i_mcu_addr;
     assign mcu_bus.rw   = i_mcu_rw;
     assign mcu_bus.req  = i_mcu_req;
-    assign o_mcu_data   = mcu_bus.data;
-    assign o_mcu_ack    = mcu_bus.ack;
+    assign mcu_bus.inc  = i_mcu_inc;
+    assign o_mcu_req_echo = mcu_bus.req_echo;
+    assign o_mcu_busy     = mcu_bus.busy;
 
     mock_gen #(
         .CLK_FREQ_HZ   (80_000_000),
@@ -85,21 +76,21 @@ module digital_oscilloscope (
     );
 
     mcu_parallel parallel_inst (
-        .i_clk            (i_clk_ext),
-        .i_rst_n          (i_areset_n),
-        .i_ch1_data       (w_buf_ch1),
-        .i_ch2_data       (w_buf_ch2),
-        .i_ch1_valid      (w_buf_valid),
-        .i_ch2_valid      (w_buf_valid),
-        .i_fifo_overflow  (w_fifo_overflow),
-        .i_batch_ready    (w_batch_ready),
-        .i_sdram_busy     (1'b0),
-        .o_capture_enable   (w_capture_enable),
-        .o_mock_enable      (w_mock_enable),
-        .o_reset_fifo       (w_reset_fifo),
-        .o_ch2_read_strobe  (w_ch2_read_strobe),
-        .o_sample_last_addr (w_sample_last_addr),
-        .mcu                (mcu_bus.device)
+        .i_clk             (i_clk_ext),
+        .i_rst_n           (i_areset_n),
+        .i_ch1_data        (w_buf_ch1),
+        .i_ch2_data        (w_buf_ch2),
+        .i_ch1_valid       (w_buf_valid),
+        .i_ch2_valid       (w_buf_valid),
+        .i_fifo_overflow   (w_fifo_overflow),
+        .i_batch_ready     (w_batch_ready),
+        .i_sdram_busy      (1'b0),
+        .o_capture_enable  (w_capture_enable),
+        .o_mock_enable     (w_mock_enable),
+        .o_reset_fifo      (w_reset_fifo),
+        .o_read_advance    (w_read_advance),
+        .o_sample_last_addr(w_sample_last_addr),
+        .mcu               (mcu_bus.device)
     );
 
     sample_buffer buf_inst (
@@ -114,7 +105,7 @@ module digital_oscilloscope (
         .o_ch1_data      (w_buf_ch1),
         .o_ch2_data      (w_buf_ch2),
         .o_valid         (w_buf_valid),
-        .i_read_advance  (w_ch2_read_strobe),
+        .i_read_advance  (w_read_advance),
         .o_batch_ready   (w_batch_ready),
         .o_overflow      (w_fifo_overflow),
         .o_sample_written(w_sample_written)
