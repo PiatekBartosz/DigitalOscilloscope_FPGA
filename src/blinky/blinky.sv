@@ -7,14 +7,14 @@ module blinky #(
 );
     localparam int TOGGLE_LIMIT = (INPUT_CLOCK_FREQUENCY_HZ * PERIOD_S) / 2;
 
-    logic [$clog2(TOGGLE_LIMIT)-1:0] counter = '0;
+    logic [$clog2(TOGGLE_LIMIT)-1:0] r_cnt = '0;
 
     always_ff @(posedge i_clk) begin
-        if (counter >= (TOGGLE_LIMIT - 1)) begin
-            counter <= '0;
-            o_led   <= ~o_led;
+        if (r_cnt >= (TOGGLE_LIMIT - 1)) begin
+            r_cnt <= '0;
+            o_led <= ~o_led;
         end else begin
-            counter <= counter + 1'b1;
+            r_cnt <= r_cnt + 1'b1;
         end
     end
 
