@@ -14,20 +14,18 @@
 // busy       = Status_FPGA_Busy      – asserted while FPGA not ready (MCU polls)
 
 interface mcu_parallel_if;
-    logic [2:0]  addr;     // CFG_ADDR[2:0]
-    logic        rw;       // 1=MCU writes, 0=MCU reads
-    logic        req;      // C3_Trigger_Clock_INP
-    logic        inc;      // increment: advance sample pointer for bulk reads
+    logic [ 2:0] addr;  // CFG_ADDR[2:0]
+    logic        rw;  // 1=MCU writes, 0=MCU reads
+    logic        req;  // C3_Trigger_Clock_INP
+    logic        inc;  // increment: advance sample pointer for bulk reads
 
-    logic [13:0] data_in;   // captured from io_mcu_data when rw=1 (MCU drives bus)
+    logic [13:0] data_in;  // captured from io_mcu_data when rw=1 (MCU drives bus)
     logic [13:0] data_out;  // driven onto io_mcu_data when rw=0 (FPGA drives bus)
-    logic        data_oe;   // 1 = FPGA drives io_mcu_data
+    logic        data_oe;  // 1 = FPGA drives io_mcu_data
 
-    logic        busy;      // Status_FPGA_Busy
+    logic        busy;  // Status_FPGA_Busy
     logic        req_echo;  // C3_Trigger_Clock_OUT
 
-    modport host  (output addr, rw, req, inc, data_in,
-                   input  data_out, data_oe, busy, req_echo);
-    modport device(input  addr, rw, req, inc, data_in,
-                   output data_out, data_oe, busy, req_echo);
+    modport host(output addr, rw, req, inc, data_in, input data_out, data_oe, busy, req_echo);
+    modport device(input addr, rw, req, inc, data_in, output data_out, data_oe, busy, req_echo);
 endinterface

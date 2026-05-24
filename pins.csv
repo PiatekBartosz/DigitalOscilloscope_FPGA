@@ -37,7 +37,9 @@ i_adc_b[13],PIN_D12,3.3-V LVTTL
 
 i_adc_ready,PIN_M10,3.3-V LVTTL
 i_adc_overflow,PIN_J16,3.3-V LVTTL
-o_adc_output_enable_a,PIN_J13,3.3-V LVTTL
+
+o_adc_oe_shdn_a_n,PIN_J13,3.3-V LVTTL
+o_adc_oe_shdn_b_n,PIN_D6,3.3-V LVTTL
 
 io_mcu_data[0],PIN_E9,3.3-V LVTTL
 io_mcu_data[1],PIN_D9,3.3-V LVTTL

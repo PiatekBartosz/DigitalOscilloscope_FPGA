@@ -11,7 +11,7 @@ module mock_gen #(
     output logic        o_valid
 );
 
-    localparam int DIV   = CLK_FREQ_HZ / SAMPLE_RATE_HZ - 1;
+    localparam int DIV = CLK_FREQ_HZ / SAMPLE_RATE_HZ - 1;
     localparam int CNT_W = $clog2(DIV + 1);
 
     logic [CNT_W-1:0] r_div_cnt;
@@ -28,8 +28,7 @@ module mock_gen #(
             o_valid <= 1'b0;
 
             // Latch the fact that a sample was emitted; hold until advance arrives
-            if (o_valid)
-                r_pending_advance <= 1'b1;
+            if (o_valid) r_pending_advance <= 1'b1;
 
             if (r_pending_advance && i_advance) begin
                 r_sample          <= r_sample + 1'b1;
@@ -40,10 +39,8 @@ module mock_gen #(
                 if (r_div_cnt == CNT_W'(DIV)) begin
                     r_div_cnt <= '0;
                     o_valid   <= 1'b1;
-                end else
-                    r_div_cnt <= r_div_cnt + 1'b1;
-            end else
-                r_div_cnt <= '0;
+                end else r_div_cnt <= r_div_cnt + 1'b1;
+            end else r_div_cnt <= '0;
         end
     end
 

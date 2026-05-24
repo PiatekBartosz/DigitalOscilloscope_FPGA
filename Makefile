@@ -14,6 +14,11 @@ SRC = \
     src/memory/memory.v \
     src/memory/sample_buffer.sv
 
+DEBUG_TOP = digital_oscilloscope_adc_debug
+DEBUG_SRC = \
+    src/digital_oscilloscope_adc_debug.sv \
+    src/blinky/blinky.sv
+
 FORMAT_TOOL = verible-verilog-format
 FORMAT_ARGS = --flagfile=.verilog_format --inplace
 
@@ -24,7 +29,7 @@ QIP = \
 SDC = digital_oscilloscope.sdc
 PINS = pins.csv
 
-.PHONY: all build program clean jic flash
+.PHONY: all build program clean jic flash build_debug program_debug
 
 all: build program
 
@@ -47,6 +52,14 @@ flash: jic
 erase_flash:
 	$(QUARTUS_PGM) -m jtag -o "e;$(PROJECT).jic"
 	@echo "Flash Erase Done!"
+
+build_debug: $(PINS)
+	$(QUARTUS_SH) -t build.tcl $(DEBUG_TOP) $(DEBUG_TOP) "$(DEBUG_SRC)" "" $(SDC)
+	@echo "Debug Build Done!"
+
+program_debug:
+	$(QUARTUS_PGM) -m jtag -o "p;$(DEBUG_TOP).sof"
+	@echo "Debug Program Done!"
 
 format:
 	$(FORMAT_TOOL) $(FORMAT_ARGS) $(SRC)

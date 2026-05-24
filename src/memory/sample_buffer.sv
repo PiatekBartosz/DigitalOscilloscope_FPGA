@@ -57,8 +57,8 @@ module sample_buffer (
     input logic i_read_advance,
 
     // Status flags → mcu_parallel STATUS register
-    output logic o_batch_ready,    // high while memory full / being drained
-    output logic o_overflow,       // sample(s) lost during drain phase
+    output logic o_batch_ready,  // high while memory full / being drained
+    output logic o_overflow,     // sample(s) lost during drain phase
 
     // Pulsed for one cycle each time a sample pair is committed to RAM.
     // Fed back to mock_gen.i_advance so its counter only ticks on real writes.
@@ -71,10 +71,10 @@ module sample_buffer (
     // -------------------------------------------------------------------------
     // State machine
     // -------------------------------------------------------------------------
-    localparam [2:0] ST_FILLING   = 3'd0;
-    localparam [2:0] ST_PREFETCH  = 3'd1;  // cycle 1: rdaddress registered by altsyncram
+    localparam [2:0] ST_FILLING = 3'd0;
+    localparam [2:0] ST_PREFETCH = 3'd1;  // cycle 1: rdaddress registered by altsyncram
     localparam [2:0] ST_PREFETCH2 = 3'd2;  // cycle 2: memory data registered by outdata_reg_b
-    localparam [2:0] ST_LATCH     = 3'd3;  // q_b is now valid — capture and assert o_valid
+    localparam [2:0] ST_LATCH = 3'd3;  // q_b is now valid — capture and assert o_valid
     localparam [2:0] ST_WAIT_READ = 3'd4;
 
     logic [      2:0] r_state;
@@ -84,7 +84,7 @@ module sample_buffer (
 
     // Combinatorial write enable — asserted for exactly the cycle i_valid is
     // seen while filling.  All inputs are registered so setup timing is met.
-    wire w_wr_en = (r_state == ST_FILLING) & i_valid & i_capture_enable;
+    wire              w_wr_en = (r_state == ST_FILLING) & i_valid & i_capture_enable;
 
     assign o_sample_written = w_wr_en;
 

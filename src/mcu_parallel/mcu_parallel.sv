@@ -45,21 +45,18 @@ module mcu_parallel (
     output logic        o_capture_enable,
     output logic        o_mock_enable,
     output logic        o_reset_fifo,
-    output logic        o_read_advance,   // pulsed 1 cycle on inc rising edge
+    output logic        o_read_advance,     // pulsed 1 cycle on inc rising edge
     output logic [12:0] o_sample_last_addr,
 
     mcu_parallel_if.device mcu
 );
 
-    localparam [2:0]
-        ADDR_CTRL        = 3'h5,
-        ADDR_SAMPLE_SIZE = 3'h6,
-        ADDR_RESET       = 3'h7;
+    localparam [2:0] ADDR_CTRL = 3'h5, ADDR_SAMPLE_SIZE = 3'h6, ADDR_RESET = 3'h7;
 
     logic        r_capture_enable;
     logic        r_mock_enable;
     logic        r_reset_fifo;
-    logic [3:0]  r_sample_size_exp;
+    logic [ 3:0] r_sample_size_exp;
     logic [13:0] r_ch1_sample;
     logic [13:0] r_ch2_sample;
 
@@ -119,15 +116,14 @@ module mcu_parallel (
                     r_mock_enable    <= mcu.data_in[1];
                     r_reset_fifo     <= mcu.data_in[2];
                 end
-                ADDR_SAMPLE_SIZE:
-                    r_sample_size_exp <= mcu.data_in[3:0];
+                ADDR_SAMPLE_SIZE: r_sample_size_exp <= mcu.data_in[3:0];
                 ADDR_RESET: begin
                     r_capture_enable  <= 1'b0;
                     r_mock_enable     <= 1'b0;
                     r_reset_fifo      <= 1'b0;
                     r_sample_size_exp <= 4'd13;
                 end
-                default: ;
+                default:          ;
             endcase
         end
     end
@@ -148,13 +144,13 @@ module mcu_parallel (
     end
 
     // FPGA drives 14-bit bus when MCU reads (rw=0), tristates when MCU writes (rw=1)
-    assign mcu.data_oe = ~mcu.rw;
+    assign mcu.data_oe        = ~mcu.rw;
 
     // Echo req back during reads (C3_Trigger_Clock_OUT behaviour from VHDL)
-    assign mcu.req_echo = mcu.req & ~mcu.rw;
+    assign mcu.req_echo       = mcu.req & ~mcu.rw;
 
     // Busy only during reset
-    assign mcu.busy = ~i_rst_n;
+    assign mcu.busy           = ~i_rst_n;
 
     // One-cycle pulse to advance sample-buffer read pointer
     assign o_read_advance     = w_inc_rising;
