@@ -42,6 +42,9 @@ module digital_oscilloscope (
     logic        w_read_advance;
     logic [12:0] w_sample_last_addr;
     logic        w_sample_written;
+    logic [10:0] w_decim_factor;
+    logic [13:0] w_decim_ch1, w_decim_ch2;
+    logic        w_decim_valid;
 
     assign w_adc_ch1   = w_mock_enable ? w_mock_ch1 : w_ch_a_data;
     assign w_adc_ch2   = w_mock_enable ? w_mock_ch2 : w_ch_b_data;
@@ -89,15 +92,28 @@ module digital_oscilloscope (
         .o_reset_fifo      (w_reset_fifo),
         .o_read_advance    (w_read_advance),
         .o_sample_last_addr(w_sample_last_addr),
+        .o_decim_factor    (w_decim_factor),
         .mcu               (mcu_bus.device)
+    );
+
+    decimator decim_inst (
+        .i_clk     (i_clk_ext),
+        .i_rst_n   (i_areset_n),
+        .i_factor  (w_decim_factor),
+        .i_ch1_data(w_adc_ch1),
+        .i_ch2_data(w_adc_ch2),
+        .i_valid   (w_adc_valid),
+        .o_ch1_data(w_decim_ch1),
+        .o_ch2_data(w_decim_ch2),
+        .o_valid   (w_decim_valid)
     );
 
     sample_buffer buf_inst (
         .i_clk           (i_clk_ext),
         .i_rst_n         (i_areset_n),
-        .i_ch1_data      (w_adc_ch1),
-        .i_ch2_data      (w_adc_ch2),
-        .i_valid         (w_adc_valid),
+        .i_ch1_data      (w_decim_ch1),
+        .i_ch2_data      (w_decim_ch2),
+        .i_valid         (w_decim_valid),
         .i_capture_enable(w_capture_enable),
         .i_reset         (w_reset_fifo),
         .i_last_addr     (w_sample_last_addr),

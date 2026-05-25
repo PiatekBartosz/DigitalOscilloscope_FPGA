@@ -20,12 +20,12 @@
 //   0x2   CH1 sample [13:0]
 //   0x3   CH2 sample [13:0]
 //   0x4   Status: [0]=fifo_ovf  [1]=batch_rdy  [2]=sdram_bsy
-//   0x5   0 (reserved)
+//   0x5   CTRL readback: [2:0]=flags  [13:3]=decim_factor
 //   0x6   0 (reserved)
 //   0x7   14'h02B (default)
 //
-//   WRITE  (write data in data_in[13:0]; only lower bits are used per register)
-//   addr=5   CTRL:        [0]=capture_en  [1]=mock_en  [2]=reset_fifo
+//   WRITE  (write data in data_in[13:0])
+//   addr=5   CTRL:        [0]=capture_en  [1]=mock_en  [2]=reset_fifo  [13:3]=decim_factor
 //   addr=6   SAMPLE_SIZE: log2(sample count), 4-bit, range 0–13
 //   addr=7   RESET:       clears all control registers
 
@@ -47,6 +47,7 @@ module mcu_parallel (
     output logic        o_reset_fifo,
     output logic        o_read_advance,     // pulsed 1 cycle on inc rising edge
     output logic [12:0] o_sample_last_addr,
+    output logic [10:0] o_decim_factor,
 
     mcu_parallel_if.device mcu
 );
@@ -57,6 +58,7 @@ module mcu_parallel (
     logic        r_mock_enable;
     logic        r_reset_fifo;
     logic [ 3:0] r_sample_size_exp;
+    logic [10:0] r_decim_factor;
     logic [13:0] r_ch1_sample;
     logic [13:0] r_ch2_sample;
 
@@ -109,12 +111,14 @@ module mcu_parallel (
             r_mock_enable     <= 1'b0;
             r_reset_fifo      <= 1'b0;
             r_sample_size_exp <= 4'd13;
+            r_decim_factor    <= 11'd0;
         end else if (w_req_rising && mcu.rw) begin
             case (mcu.addr)
                 ADDR_CTRL: begin
                     r_capture_enable <= mcu.data_in[0];
                     r_mock_enable    <= mcu.data_in[1];
                     r_reset_fifo     <= mcu.data_in[2];
+                    r_decim_factor   <= mcu.data_in[13:3];
                 end
                 ADDR_SAMPLE_SIZE: r_sample_size_exp <= mcu.data_in[3:0];
                 ADDR_RESET: begin
@@ -122,6 +126,7 @@ module mcu_parallel (
                     r_mock_enable     <= 1'b0;
                     r_reset_fifo      <= 1'b0;
                     r_sample_size_exp <= 4'd13;
+                    r_decim_factor    <= 11'd0;
                 end
                 default:          ;
             endcase
@@ -137,7 +142,7 @@ module mcu_parallel (
             3'h2:    mcu.data_out = r_ch1_sample;
             3'h3:    mcu.data_out = r_ch2_sample;
             3'h4:    mcu.data_out = {11'd0, i_sdram_busy, i_batch_ready, i_fifo_overflow};
-            3'h5:    mcu.data_out = 14'd0;
+            3'h5:    mcu.data_out = {r_decim_factor, r_reset_fifo, r_mock_enable, r_capture_enable};
             3'h6:    mcu.data_out = 14'd0;
             default: mcu.data_out = 14'h02B;
         endcase
@@ -158,5 +163,6 @@ module mcu_parallel (
     assign o_mock_enable      = r_mock_enable;
     assign o_reset_fifo       = r_reset_fifo;
     assign o_sample_last_addr = (13'd1 << r_sample_size_exp) - 13'd1;
+    assign o_decim_factor     = r_decim_factor;
 
 endmodule

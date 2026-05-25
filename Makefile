@@ -11,6 +11,7 @@ SRC = \
     src/mock_gen/mock_gen.sv \
     src/mcu_parallel/mcu_parallel_if.sv \
     src/mcu_parallel/mcu_parallel.sv \
+    src/decimator/decimator.sv \
     src/memory/memory.v \
     src/memory/sample_buffer.sv
 
