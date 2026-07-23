@@ -42,6 +42,7 @@ transcript
 *.wlf
 *.sft
 *.svo
+sim/*.vvp
+sim/*.vcd
 
 qmegawiz_errors_log.txt
-

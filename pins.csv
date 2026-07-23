@@ -63,3 +63,5 @@ i_mcu_inc,PIN_A6,3.3-V LVTTL
 i_mcu_rw,PIN_P9,3.3-V LVTTL
 i_mcu_req,PIN_N11,3.3-V LVTTL
 o_mcu_busy,PIN_E10,3.3-V LVTTL
+
+i_trigg,PIN_B12,3.3-V LVTTL

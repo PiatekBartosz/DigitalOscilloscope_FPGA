@@ -6,13 +6,9 @@ module ltc2299 #(
     input logic i_enable_a,
     input logic i_enable_b,
 
-    output logic        o_clk_a,
-    output logic        o_clk_b,
-
     output logic o_adc_oe_shdn_a_n,
     output logic o_adc_oe_shdn_b_n,
 
-    output logic        o_mux,
     input  logic [13:0] i_da,
     input  logic        i_of_a,
     input  logic [13:0] i_db,
@@ -30,13 +26,6 @@ module ltc2299 #(
     localparam int SETTLE_CYCLES = NAP_RECOVERY_CYCLES + PIPELINE_LATENCY;
     localparam int CNT_WIDTH = $clog2(SETTLE_CYCLES + 1);
 
-    assign o_mux    = 1'b1;
-    assign o_clk_a  = i_clk;
-    assign o_clk_b  = i_clk;
-
-    // HIGH during FPGA reset forces ADC into sleep mode (both OE and SHDN
-    // driven high on the PCB tie).  Goes LOW once reset is released and the
-    // channel is enabled, which starts the NAP_RECOVERY_CYCLES counter.
     assign o_adc_oe_shdn_a_n = ~i_rst_n | ~i_enable_a;
     assign o_adc_oe_shdn_b_n = ~i_rst_n | ~i_enable_b;
 

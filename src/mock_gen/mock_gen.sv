@@ -27,7 +27,6 @@ module mock_gen #(
         end else begin
             o_valid <= 1'b0;
 
-            // Latch the fact that a sample was emitted; hold until advance arrives
             if (o_valid) r_pending_advance <= 1'b1;
 
             if (r_pending_advance && i_advance) begin

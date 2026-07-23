@@ -1,3 +1,8 @@
+### Options (sim only) ###
+WAVE    ?= 0
+VERBOSE ?= 0
+###########################
+
 PROJECT = digital_oscilloscope
 TOP = digital_oscilloscope
 QUARTUS_SH = quartus_sh
@@ -12,6 +17,7 @@ SRC = \
     src/mcu_parallel/mcu_parallel_if.sv \
     src/mcu_parallel/mcu_parallel.sv \
     src/decimator/decimator.sv \
+    src/trigger/trigger_ctrl.sv \
     src/memory/memory.v \
     src/memory/sample_buffer.sv
 
@@ -24,13 +30,36 @@ FORMAT_TOOL = verible-verilog-format
 FORMAT_ARGS = --flagfile=.verilog_format --inplace
 
 QIP = \
-    src/clk/adc_clk.qip \
-    src/spi_control/synthesis/spi_control.qip
+    src/clk/adc_clk.qip
 
 SDC = digital_oscilloscope.sdc
 PINS = pins.csv
 
-.PHONY: all build program clean jic flash build_debug program_debug
+SIM_DIR = sim
+
+TB1_TOP = tb_sample_buffer
+TB1_RTL = src/memory/sample_buffer.sv
+TB1_SRC = $(SIM_DIR)/memory_stub.sv $(SIM_DIR)/tb_sample_buffer.sv
+TB1_VVP = $(SIM_DIR)/sim.vvp
+
+TB2_TOP = tb_trigger_path
+TB2_RTL = \
+    src/trigger/trigger_ctrl.sv \
+    src/mock_gen/mock_gen.sv \
+    src/decimator/decimator.sv \
+    src/memory/sample_buffer.sv
+TB2_SRC = $(SIM_DIR)/memory_stub.sv $(SIM_DIR)/tb_trigger_path.sv
+TB2_VVP = $(SIM_DIR)/sim_trigger.vvp
+
+VVP_ARGS =
+ifeq ($(VERBOSE),1)
+  VVP_ARGS += +VERBOSE
+endif
+ifeq ($(WAVE),1)
+  VVP_ARGS += +WAVE
+endif
+
+.PHONY: all build program clean jic flash build_debug program_debug sim sim_waves sim_clean
 
 all: build program
 
@@ -62,6 +91,24 @@ program_debug:
 	$(QUARTUS_PGM) -m jtag -o "p;$(DEBUG_TOP).sof"
 	@echo "Debug Program Done!"
 
+sim: $(TB1_VVP) $(TB2_VVP)
+	cd $(SIM_DIR) && vvp $(notdir $(TB1_VVP)) $(VVP_ARGS)
+	cd $(SIM_DIR) && vvp $(notdir $(TB2_VVP)) $(VVP_ARGS)
+	@echo "Sim Done!"
+
+$(TB1_VVP): $(TB1_RTL) $(TB1_SRC)
+	iverilog -g2012 -s $(TB1_TOP) -o $(TB1_VVP) $(TB1_RTL) $(TB1_SRC)
+
+$(TB2_VVP): $(TB2_RTL) $(TB2_SRC)
+	iverilog -g2012 -s $(TB2_TOP) -o $(TB2_VVP) $(TB2_RTL) $(TB2_SRC)
+
+sim_waves:
+	@which surfer >/dev/null 2>&1 && surfer $(SIM_DIR)/waves.vcd $(SIM_DIR)/waves_trigger.vcd & || gtkwave $(SIM_DIR)/waves.vcd $(SIM_DIR)/waves_trigger.vcd &
+
+sim_clean:
+	rm -f $(TB1_VVP) $(TB2_VVP) $(SIM_DIR)/waves.vcd $(SIM_DIR)/waves_trigger.vcd
+	@echo "Sim Clean Done!"
+
 format:
 	$(FORMAT_TOOL) $(FORMAT_ARGS) $(SRC)
 	@echo "\nFormat Done!"
@@ -75,4 +122,3 @@ clean:
 	rm -f qmegawiz_errors_log.txt
 	rm -f src/*.bak src/**/*.bak src/**/**/*.bak
 	@echo "Clean Done!"
-
