@@ -30,13 +30,15 @@ module sample_buffer (
     localparam integer DEPTH = 8192;
     localparam integer ADDRW = 13;
 
-    localparam [2:0] ST_FILLING = 3'd0;
-    localparam [2:0] ST_PREFETCH = 3'd1;
-    localparam [2:0] ST_PREFETCH2 = 3'd2;
-    localparam [2:0] ST_LATCH = 3'd3;
-    localparam [2:0] ST_WAIT_READ = 3'd4;
+    typedef enum logic [2:0] {
+        ST_FILLING   = 3'd0,
+        ST_PREFETCH  = 3'd1,
+        ST_PREFETCH2 = 3'd2,
+        ST_LATCH     = 3'd3,
+        ST_WAIT_READ = 3'd4
+    } buffer_state_t;
 
-    logic [      2:0] r_state;
+    buffer_state_t r_state;
 
     logic [ADDRW-1:0] r_wr_addr;
     logic [ADDRW-1:0] r_rd_addr;

@@ -31,8 +31,13 @@ module trigger_ctrl (
     end
     assign o_trigg_rising = r_trigg_sync1 & ~r_trigg_prev;
 
-    localparam [1:0] TRIG_IDLE = 2'd0, TRIG_ARMED = 2'd1, TRIG_CAPTURING = 2'd2;
-    logic [1:0] r_trig_state;
+    typedef enum logic [1:0] {
+        TRIG_IDLE      = 2'd0,
+        TRIG_ARMED     = 2'd1,
+        TRIG_CAPTURING = 2'd2
+    } trigger_state_t;
+
+    trigger_state_t r_trig_state;
     always_ff @(posedge i_clk or negedge i_rst_n) begin
         if (!i_rst_n) begin
             r_trig_state <= TRIG_IDLE;

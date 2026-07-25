@@ -1,5 +1,8 @@
 module ltc2299 #(
-    parameter int NAP_RECOVERY_CYCLES = 100
+    parameter int NAP_RECOVERY_CYCLES = 100,
+    // Set to 1 to reverse the corresponding ADC's offset-binary code polarity.
+    parameter bit INVERT_A = 1'b0,
+    parameter bit INVERT_B = 1'b0
 ) (
     input logic i_clk,
     input logic i_rst_n,
@@ -38,7 +41,7 @@ module ltc2299 #(
             o_overflow_a <= 1'b0;
             o_valid_a    <= 1'b0;
         end else begin
-            o_data_a     <= i_da;
+            o_data_a     <= INVERT_A ? ~i_da : i_da;
             o_overflow_a <= i_of_a;
 
             if (!i_enable_a) begin
@@ -60,7 +63,7 @@ module ltc2299 #(
             o_overflow_b <= 1'b0;
             o_valid_b    <= 1'b0;
         end else begin
-            o_data_b     <= i_db;
+            o_data_b     <= INVERT_B ? ~i_db : i_db;
             o_overflow_b <= i_of_b;
 
             if (!i_enable_b) begin

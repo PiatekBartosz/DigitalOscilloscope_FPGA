@@ -62,7 +62,7 @@ ifeq ($(WAVE),1)
   VVP_ARGS += +WAVE
 endif
 
-.PHONY: all build program clean jic flash build_debug program_debug sim sim_waves sim_clean
+.PHONY: all build program clean jic flash erase_flash build_debug program_debug sim sim_waves sim_clean format
 
 all: build program
 
