@@ -28,6 +28,7 @@ greybox_tmp/
 *.swp
 *~
 
+*.map
 *.cmp
 *.ppf
 *.bsf

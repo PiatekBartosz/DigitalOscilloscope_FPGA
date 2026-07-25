@@ -8,6 +8,9 @@ TOP = digital_oscilloscope
 QUARTUS_SH = quartus_sh
 QUARTUS_PGM = quartus_pgm
 QUARTUS_CPF = quartus_cpf
+QUARTUS_DIR := $(shell dirname $(shell dirname $(shell readlink -f $(shell which $(QUARTUS_PGM)))))
+SFL_SOF ?= $(QUARTUS_DIR)/common/devinfo/programmer/sfl_ep4ce22.sof
+FLASH_JTAG_DEVICE ?= 1
 
 SRC = \
     src/digital_oscilloscope.sv \
@@ -76,7 +79,9 @@ jic:
 	@echo "Jic Done!"
 
 flash: jic
-	$(QUARTUS_PGM) -m jtag -o "p;$(PROJECT).jic"
+	@test -f "$(SFL_SOF)" || { echo "Serial Flash Loader not found: $(SFL_SOF)"; exit 2; }
+	$(QUARTUS_PGM) -m jtag -o "p;$(SFL_SOF)@$(FLASH_JTAG_DEVICE)"
+	$(QUARTUS_PGM) -m jtag -o "p;$(PROJECT).jic@$(FLASH_JTAG_DEVICE)"
 	@echo "Flash Done!"
 
 erase_flash:
