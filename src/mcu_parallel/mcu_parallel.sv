@@ -122,8 +122,12 @@ module mcu_parallel (
             3'h3: mcu.data_out = r_ch2_sample;
             3'h4:
             mcu.data_out = {
-                9'd0, i_trigger_armed, i_pretrigger_ready,
-                i_sdram_busy, i_batch_ready, i_fifo_overflow
+                9'd0,
+                i_trigger_armed,
+                i_pretrigger_ready,
+                i_sdram_busy,
+                i_batch_ready,
+                i_fifo_overflow
             };
             3'h5:
             mcu.data_out = {

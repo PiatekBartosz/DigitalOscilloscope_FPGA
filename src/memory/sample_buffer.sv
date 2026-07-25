@@ -44,19 +44,18 @@ module sample_buffer (
     logic [ADDRW-1:0] r_rd_addr;
     logic [ADDRW-1:0] r_read_count;
 
-    logic             r_triggered;
+    logic r_triggered;
     logic [ADDRW-1:0] r_trig_addr;
     logic [ADDRW-1:0] r_post_remaining;
     logic [ADDRW-1:0] r_pretrigger_fill_count;
 
-    wire  [ADDRW-1:0] w_wr_addr_incr = (r_wr_addr == i_last_addr) ? '0 : (r_wr_addr + 1'b1);
-    wire  [ADDRW-1:0] w_wr_addr_next = w_wr_en ? w_wr_addr_incr : r_wr_addr;
+    wire [ADDRW-1:0] w_wr_addr_incr = (r_wr_addr == i_last_addr) ? '0 : (r_wr_addr + 1'b1);
+    wire [ADDRW-1:0] w_wr_addr_next = w_wr_en ? w_wr_addr_incr : r_wr_addr;
 
-    wire              w_wr_en = (r_state == ST_FILLING) & i_valid & i_capture_enable;
+    wire w_wr_en = (r_state == ST_FILLING) & i_valid & i_capture_enable;
 
     assign o_sample_written = w_wr_en;
-    assign o_pretrigger_ready = i_pretrigger_mode
-                                & (r_pretrigger_fill_count >= i_pretrigger_count);
+    assign o_pretrigger_ready = i_pretrigger_mode & (r_pretrigger_fill_count >= i_pretrigger_count);
 
     logic [13:0] w_q_ch1, w_q_ch2;
 
@@ -80,33 +79,33 @@ module sample_buffer (
 
     always_ff @(posedge i_clk or negedge i_rst_n) begin
         if (!i_rst_n) begin
-            r_state          <= ST_FILLING;
-            r_wr_addr        <= '0;
-            r_rd_addr        <= '0;
-            r_read_count     <= '0;
-            r_triggered      <= 1'b0;
-            r_trig_addr      <= '0;
-            r_post_remaining <= '0;
+            r_state                 <= ST_FILLING;
+            r_wr_addr               <= '0;
+            r_rd_addr               <= '0;
+            r_read_count            <= '0;
+            r_triggered             <= 1'b0;
+            r_trig_addr             <= '0;
+            r_post_remaining        <= '0;
             r_pretrigger_fill_count <= '0;
-            o_ch1_data       <= '0;
-            o_ch2_data       <= '0;
-            o_valid          <= 1'b0;
-            o_batch_ready    <= 1'b0;
-            o_overflow       <= 1'b0;
+            o_ch1_data              <= '0;
+            o_ch2_data              <= '0;
+            o_valid                 <= 1'b0;
+            o_batch_ready           <= 1'b0;
+            o_overflow              <= 1'b0;
         end else if (i_reset) begin
-            r_state          <= ST_FILLING;
-            r_wr_addr        <= '0;
-            r_rd_addr        <= '0;
-            r_read_count     <= '0;
-            r_triggered      <= 1'b0;
-            r_trig_addr      <= '0;
-            r_post_remaining <= '0;
+            r_state                 <= ST_FILLING;
+            r_wr_addr               <= '0;
+            r_rd_addr               <= '0;
+            r_read_count            <= '0;
+            r_triggered             <= 1'b0;
+            r_trig_addr             <= '0;
+            r_post_remaining        <= '0;
             r_pretrigger_fill_count <= '0;
-            o_ch1_data       <= '0;
-            o_ch2_data       <= '0;
-            o_valid          <= 1'b0;
-            o_batch_ready    <= 1'b0;
-            o_overflow       <= 1'b0;
+            o_ch1_data              <= '0;
+            o_ch2_data              <= '0;
+            o_valid                 <= 1'b0;
+            o_batch_ready           <= 1'b0;
+            o_overflow              <= 1'b0;
         end else begin
             o_valid <= 1'b0;
 
@@ -116,8 +115,7 @@ module sample_buffer (
                     if (i_pretrigger_mode) begin
                         if (w_wr_en) begin
                             r_wr_addr <= w_wr_addr_next;
-                            if (!r_triggered
-                                && r_pretrigger_fill_count < i_pretrigger_count) begin
+                            if (!r_triggered && r_pretrigger_fill_count < i_pretrigger_count) begin
                                 r_pretrigger_fill_count <= r_pretrigger_fill_count + 1'b1;
                             end
                         end
@@ -176,11 +174,11 @@ module sample_buffer (
                 ST_WAIT_READ: begin
                     if (i_read_advance) begin
                         if (r_read_count == i_last_addr) begin
-                            r_rd_addr     <= '0;
-                            r_wr_addr     <= '0;
+                            r_rd_addr               <= '0;
+                            r_wr_addr               <= '0;
                             r_pretrigger_fill_count <= '0;
-                            o_batch_ready <= 1'b0;
-                            r_state       <= ST_FILLING;
+                            o_batch_ready           <= 1'b0;
+                            r_state                 <= ST_FILLING;
                         end else begin
                             r_rd_addr    <= (r_rd_addr == i_last_addr) ? '0 : (r_rd_addr + 1'b1);
                             r_read_count <= r_read_count + 1'b1;

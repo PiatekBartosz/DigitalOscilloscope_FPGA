@@ -12,10 +12,10 @@ module ltc2299 #(
     output logic o_adc_oe_shdn_a_n,
     output logic o_adc_oe_shdn_b_n,
 
-    input  logic [13:0] i_da,
-    input  logic        i_of_a,
-    input  logic [13:0] i_db,
-    input  logic        i_of_b,
+    input logic [13:0] i_da,
+    input logic        i_of_a,
+    input logic [13:0] i_db,
+    input logic        i_of_b,
 
     output logic [13:0] o_data_a,
     output logic        o_overflow_a,

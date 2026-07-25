@@ -48,8 +48,7 @@ module trigger_ctrl (
                 end
                 TRIG_ARMED: begin
                     if (!i_trigger_en || !i_capture_enable) r_trig_state <= TRIG_IDLE;
-                    else if (o_trigger_accept)
-                        r_trig_state <= TRIG_CAPTURING;
+                    else if (o_trigger_accept) r_trig_state <= TRIG_CAPTURING;
                 end
                 TRIG_CAPTURING: begin
                     if (!i_trigger_en) r_trig_state <= TRIG_IDLE;

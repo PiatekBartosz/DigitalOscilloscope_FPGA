@@ -153,8 +153,8 @@ module digital_oscilloscope (
 
     ltc2299 #(
         .NAP_RECOVERY_CYCLES(100),
-        .INVERT_A          (1'b1), // Channel 1
-        .INVERT_B          (1'b0)  // Channel 2
+        .INVERT_A           (1'b1),  // Channel 1
+        .INVERT_B           (1'b0)   // Channel 2
     ) adc_inst (
         .i_clk            (i_clk_ext),
         .i_rst_n          (i_areset_n),
