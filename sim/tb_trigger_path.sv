@@ -187,6 +187,21 @@ module tb_trigger_path;
         end
     endtask
 
+    task automatic check_posttrigger_capture(string name);
+        for (int i = 1; i < 16; i++) begin
+            if (captured1[i] !== (captured1[i-1] + 14'd2)) begin
+                $error("[%s]: CH1 ramp broken at index %0d: %0d -> %0d",
+                       name, i, captured1[i-1], captured1[i]);
+                $fatal(1);
+            end
+            if (captured2[i] !== ~captured1[i]) begin
+                $error("[%s]: CH2 mismatch at index %0d: expected ~%0d got %0d",
+                       name, i, captured1[i], captured2[i]);
+                $fatal(1);
+            end
+        end
+    endtask
+
     logic [13:0] trig_snapshot;
     always @(posedge w_trigger_accept) trig_snapshot = w_mock_ch1;
 
@@ -221,6 +236,20 @@ module tb_trigger_path;
         end else begin
             read_all();
             check_capture("B-real-edge", trig_snapshot);
+        end
+
+        // A zero pretrigger depth is a valid post-trigger-only acquisition.
+        // It must not need a one-sample pretrigger workaround to complete.
+        soft_reset();
+        r_pretrigger_count = 13'd0;
+        pulse_trigger();
+        wait_batch_ready(ready, 1200);
+        if (!ready) begin
+            $error("[C-zero-pretrigger]: batch_ready never asserted after trigger");
+            $fatal(1);
+        end else begin
+            read_all();
+            check_posttrigger_capture("C-zero-pretrigger");
         end
 
         $display("ALL SCENARIOS PASSED");

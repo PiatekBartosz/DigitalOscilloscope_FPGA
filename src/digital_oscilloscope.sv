@@ -26,6 +26,11 @@ module digital_oscilloscope (
     output logic o_led
 );
 
+    localparam int INPUT_CLOCK_HZ          = 80_000_000;
+    localparam int MOCK_SAMPLE_RATE_HZ     = 1_000;
+    localparam int ADC_NAP_RECOVERY_CYCLES = 100;
+    localparam int LED_BLINK_PERIOD_S      = 2;
+
     assign o_clk_adc = i_clk_ext;
 
     logic [13:0] w_ch_a_data, w_ch_b_data;
@@ -81,8 +86,8 @@ module digital_oscilloscope (
     assign o_mcu_busy      = mcu_bus.busy;
 
     mock_gen #(
-        .CLK_FREQ_HZ   (80_000_000),
-        .SAMPLE_RATE_HZ(1_000)
+        .CLK_FREQ_HZ   (INPUT_CLOCK_HZ),
+        .SAMPLE_RATE_HZ(MOCK_SAMPLE_RATE_HZ)
     ) mock_inst (
         .i_clk     (i_clk_ext),
         .i_rst_n   (i_areset_n),
@@ -152,7 +157,7 @@ module digital_oscilloscope (
     );
 
     ltc2299 #(
-        .NAP_RECOVERY_CYCLES(100),
+        .NAP_RECOVERY_CYCLES(ADC_NAP_RECOVERY_CYCLES),
         .INVERT_A           (1'b1),  // Channel 1
         .INVERT_B           (1'b0)   // Channel 2
     ) adc_inst (
@@ -175,8 +180,8 @@ module digital_oscilloscope (
     );
 
     blinky #(
-        .INPUT_CLOCK_FREQUENCY_HZ(80_000_000),
-        .PERIOD_S(2)
+        .INPUT_CLOCK_FREQUENCY_HZ(INPUT_CLOCK_HZ),
+        .PERIOD_S(LED_BLINK_PERIOD_S)
     ) blinky_inst (
         .i_clk(i_clk_ext),
         .o_led(o_led)

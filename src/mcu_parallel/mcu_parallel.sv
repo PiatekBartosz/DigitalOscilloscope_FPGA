@@ -27,7 +27,21 @@ module mcu_parallel (
     mcu_parallel_if.device mcu
 );
 
-    localparam [2:0] ADDR_CTRL = 3'h5, ADDR_SAMPLE_SIZE = 3'h6, ADDR_RESET = 3'h7;
+    typedef enum logic [2:0] {
+        ADDR_BUILD       = 3'h0,
+        ADDR_VERSION     = 3'h1,
+        ADDR_CH1         = 3'h2,
+        ADDR_CH2         = 3'h3,
+        ADDR_STATUS      = 3'h4,
+        ADDR_CTRL        = 3'h5,
+        ADDR_SAMPLE_SIZE = 3'h6,
+        ADDR_RESET       = 3'h7
+    } mcu_addr_t;
+
+    localparam logic [13:0] BUILD_ID                = 14'h089;
+    localparam logic [13:0] PROTOCOL_VERSION        = 14'h008;
+    localparam logic [ 3:0] DEFAULT_SAMPLE_SIZE_EXP = 4'd13;
+    localparam logic [13:0] READ_ERROR_VALUE        = 14'h02B;
 
     logic        r_capture_enable;
     logic        r_mock_enable;
@@ -84,7 +98,7 @@ module mcu_parallel (
             r_mock_enable     <= 1'b0;
             r_reset_fifo      <= 1'b0;
             r_trigger_en      <= 1'b0;
-            r_sample_size_exp <= 4'd13;
+            r_sample_size_exp <= DEFAULT_SAMPLE_SIZE_EXP;
             r_pretrigger_exp  <= 4'd0;
             r_decim_factor    <= 11'd0;
         end else if (w_req_rising && mcu.rw) begin
@@ -105,7 +119,7 @@ module mcu_parallel (
                     r_mock_enable     <= 1'b0;
                     r_reset_fifo      <= 1'b0;
                     r_trigger_en      <= 1'b0;
-                    r_sample_size_exp <= 4'd13;
+                    r_sample_size_exp <= DEFAULT_SAMPLE_SIZE_EXP;
                     r_pretrigger_exp  <= 4'd0;
                     r_decim_factor    <= 11'd0;
                 end
@@ -116,11 +130,11 @@ module mcu_parallel (
 
     always_comb begin
         case (mcu.addr)
-            3'h0: mcu.data_out = 14'h089;
-            3'h1: mcu.data_out = 14'h007;
-            3'h2: mcu.data_out = r_ch1_sample;
-            3'h3: mcu.data_out = r_ch2_sample;
-            3'h4:
+            ADDR_BUILD: mcu.data_out = BUILD_ID;
+            ADDR_VERSION: mcu.data_out = PROTOCOL_VERSION;
+            ADDR_CH1: mcu.data_out = r_ch1_sample;
+            ADDR_CH2: mcu.data_out = r_ch2_sample;
+            ADDR_STATUS:
             mcu.data_out = {
                 9'd0,
                 i_trigger_armed,
@@ -129,12 +143,12 @@ module mcu_parallel (
                 i_batch_ready,
                 i_fifo_overflow
             };
-            3'h5:
+            ADDR_CTRL:
             mcu.data_out = {
                 r_decim_factor[9:0], r_trigger_en, r_reset_fifo, r_mock_enable, r_capture_enable
             };
-            3'h6: mcu.data_out = {6'd0, r_pretrigger_exp, r_sample_size_exp};
-            default: mcu.data_out = 14'h02B;
+            ADDR_SAMPLE_SIZE: mcu.data_out = {6'd0, r_pretrigger_exp, r_sample_size_exp};
+            default: mcu.data_out = READ_ERROR_VALUE;
         endcase
     end
 

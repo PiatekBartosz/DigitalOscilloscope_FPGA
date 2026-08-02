@@ -28,7 +28,7 @@ module sample_buffer (
 );
 
     localparam integer DEPTH = 8192;
-    localparam integer ADDRW = 13;
+    localparam integer ADDRW = $clog2(DEPTH);
 
     typedef enum logic [2:0] {
         ST_FILLING   = 3'd0,
